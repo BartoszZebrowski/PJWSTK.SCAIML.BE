@@ -8,19 +8,22 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+[assembly: FunctionsStartup(typeof(PJWSTK.SCAIML.BE.Configuration.EFConfiguration))]
+
 
 namespace PJWSTK.SCAIML.BE.Configuration
 {
-    
-    //public class EFConfiguration : FunctionsStartup
-    //{
-    //    //public override void Configure(IFunctionsHostBuilder builder)
-    //    //{
-    //    //    //string connectionString = "Data Source=(localdb)\\Local;Initial Catalog=master;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
-    //    //    //builder.Services.AddDbContext<DataContext>(
-    //    //    //  options => SqlServerDbContextOptionsExtensions.UseSqlServer(options, connectionString));
 
-    //    //}
+    public class EFConfiguration : FunctionsStartup
+    {
+        public override void Configure(IFunctionsHostBuilder builder)
+        {
+            string connectionString = "Data Source=(localdb)\\Local;Initial Catalog=PJWSTK.SCAIML.DB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
 
-    //}
+            builder.Services.AddDbContext<DataContext>(
+              options => SqlServerDbContextOptionsExtensions.UseSqlServer(options, connectionString));
+
+        }
+
+    }
 }

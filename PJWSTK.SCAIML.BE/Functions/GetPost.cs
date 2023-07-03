@@ -7,29 +7,43 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using PJWSTK.SCAIML.BE.Data;
+using System.Linq;
+using PJWSTK.SCAIML.BE.Exceptions;
+using PJWSTK.SCAIML.BE.Data.Dto;
+using Microsoft.EntityFrameworkCore;
 
 namespace PJWSTK.SCAIML.BE
 {
-    public static class GetPost
+    public class GetPost
     {
+        private readonly DataContext _dataContext;
+        public GetPost(DataContext dataContext) => _dataContext = dataContext;
+
         [FunctionName("GetPost")]
-        public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
+        public async Task<IActionResult> Run(
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
             ILogger log)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
+            var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            var postId = new Guid(requestBody);
 
-            string name = req.Query["name"];
+            var post = _dataContext.Post.Include(x => x.Member).FirstOrDefault(x => x.Id == postId);
 
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-            name = name ?? data?.name;
+            if (post == null)
+                throw new ResourceNotFoundException("This post don't exist");
 
-            string responseMessage = string.IsNullOrEmpty(name)
-                ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
-                : $"Hello, {name}. This HTTP triggered function executed successfully.";
+            var respone = new GetPostDto
+            {
+                Id = post.Id,
+                Title = post.Title,
+                Description = post.Description,
+                Content = post.Content,
+                MainPhoto = post.PhotoBlobUrl,
+                MemberIndex = post.Member.Index
+            };
 
-            return new OkObjectResult(responseMessage);
+            return new OkObjectResult(respone);
         }
     }
 }

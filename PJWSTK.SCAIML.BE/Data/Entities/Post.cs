@@ -11,7 +11,7 @@ namespace PJWSTK.SCAIML.BE.Data.Entities
     {
         [Key]
         public Guid Id { get; set; }
-        public Member User { get; set; }
+        public Member Member { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public string Content { get; set; }

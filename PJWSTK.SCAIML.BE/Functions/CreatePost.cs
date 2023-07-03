@@ -22,11 +22,23 @@ namespace PJWSTK.SCAIML.BE
 
         [FunctionName("CreatePost")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
-            CreatePostDto createPostDto)
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req)
         {
-            var user =_dataContext.Member.FirstOrDefault(x => x.Index == createPostDto.UserIndex) ??
-                throw new ResourceNotFoundException("User not found");
+            var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            var createPostDto = JsonConvert.DeserializeObject<CreatePostDto>(requestBody);
+
+            if (createPostDto is not
+                {
+                    Title.Length: > 0,
+                    Content.Length: > 0,
+                    Description.Length: > 0,
+                    MemberIndex.Length: > 0,
+                    PhotoBlobUrl.Length: > 0,
+                })
+                throw new BadRequestException("Bad request");
+
+            var member =_dataContext.Member.FirstOrDefault(x => x.Index == createPostDto.MemberIndex) ??
+                throw new ResourceNotFoundException("Member not found");
 
             var post = new Post()
             {
@@ -35,7 +47,7 @@ namespace PJWSTK.SCAIML.BE
                 Content = createPostDto.Content,
                 Description = createPostDto.Description,
                 PhotoBlobUrl = createPostDto.PhotoBlobUrl,
-                User = user
+                Member = member
             };
 
             _dataContext.Post.Add(post);

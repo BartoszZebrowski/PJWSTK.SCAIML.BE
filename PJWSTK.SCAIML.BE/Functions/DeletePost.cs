@@ -7,29 +7,32 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using PJWSTK.SCAIML.BE.Data;
+using PJWSTK.SCAIML.BE.Exceptions;
+using System.Linq;
 
 namespace PJWSTK.SCAIML.BE.Functions
 {
-    public static class DeletePost
+    public class DeletePost
     {
+        private readonly DataContext _dataContext;
+        public DeletePost(DataContext dataContext) => _dataContext = dataContext;
+
         [FunctionName("DeletePost")]
-        public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
+        public async Task<IActionResult> Run(
+            [HttpTrigger(AuthorizationLevel.Function, "delete", Route = null)] HttpRequest req,
             ILogger log)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
+            var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            var postId = new Guid(requestBody);
 
-            string name = req.Query["name"];
+            var post = _dataContext.Post.FirstOrDefault(x => x.Id == postId) ??
+                throw new ResourceNotFoundException("This post can't exist");
 
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-            name = name ?? data?.name;
+            _dataContext.Post.Remove(post);
+            _dataContext.SaveChanges();
 
-            string responseMessage = string.IsNullOrEmpty(name)
-                ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
-                : $"Hello, {name}. This HTTP triggered function executed successfully.";
-
-            return new OkObjectResult(responseMessage);
+            return new OkResult();
         }
     }
 }

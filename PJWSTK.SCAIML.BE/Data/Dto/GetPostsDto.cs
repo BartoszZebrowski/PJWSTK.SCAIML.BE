@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace PJWSTK.SCAIML.BE.Data.Dto
 {
-    public class CreateMemberDto
+    public class GetPostsDto
     {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Index { get; set; }
+        public IList<GetPostDto> Posts { get; set; }
     }
 }

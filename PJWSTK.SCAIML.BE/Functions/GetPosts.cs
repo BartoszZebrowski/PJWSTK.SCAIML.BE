@@ -30,7 +30,7 @@ namespace PJWSTK.SCAIML.BE
             if (posts == null)
                 throw new ResourceNotFoundException("Any posts don't exist");
 
-            var postsDto = posts.Select(post => new GetPostDto
+            var resposne = posts.Select(post => new GetPostDto
             {
                 Id = post.Id,
                 Title = post.Title,
@@ -40,12 +40,7 @@ namespace PJWSTK.SCAIML.BE
                 MemberIndex = post.Member.Index,
             }).ToList();
 
-            var respone = new GetPostsDto
-            {
-                Posts = postsDto,
-            };
-
-            return new OkObjectResult(respone);
+            return new OkObjectResult(resposne);
         }
     }
 }

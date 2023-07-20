@@ -36,7 +36,7 @@ namespace PJWSTK.SCAIML.BE
                 Title = post.Title,
                 Content = post.Content,
                 Description = post.Description,
-                MainPhoto = post.PhotoBlobUrl,
+                MainPhoto = post.MainPhoto,
                 MemberIndex = post.Member.Index,
             }).ToList();
 

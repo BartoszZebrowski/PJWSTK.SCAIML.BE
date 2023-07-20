@@ -12,6 +12,7 @@ using PJWSTK.SCAIML.BE.Data.Dto;
 using PJWSTK.SCAIML.BE.Data.Entities;
 using System.Linq;
 using PJWSTK.SCAIML.BE.Exceptions;
+using PJWSTK.SCAIML.BE.Utils;
 
 namespace PJWSTK.SCAIML.BE
 {
@@ -27,33 +28,35 @@ namespace PJWSTK.SCAIML.BE
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             var createPostDto = JsonConvert.DeserializeObject<CreatePostDto>(requestBody);
 
-            if (createPostDto is not
-                {
-                    Title.Length: > 0,
-                    Content.Length: > 0,
-                    Description.Length: > 0,
-                    MemberIndex.Length: > 0,
-                    PhotoBlobUrl.Length: > 0,
-                })
-                throw new BadRequestException("Bad request");
-
-            var member =_dataContext.Member.FirstOrDefault(x => x.Index == createPostDto.MemberIndex) ??
-                throw new ResourceNotFoundException("Member not found");
+            ValidateRequest(createPostDto);
 
             var post = new Post()
             {
                 Id = Guid.NewGuid(),
                 Title = createPostDto.Title,
-                Content = createPostDto.Content,
+                Content = await HtmlConverter.ChangePhotosInHTMLToBase64(createPostDto.ContentPhotos, createPostDto.Content),
                 Description = createPostDto.Description,
-                PhotoBlobUrl = createPostDto.PhotoBlobUrl,
-                Member = member
+                MainPhoto = await HtmlConverter.ChangeIFormFileToBase64(createPostDto.MainPhoto),
+                Member = _dataContext.Member.FirstOrDefault(member => member.Index == createPostDto.MemberIndex),
             };
 
             _dataContext.Post.Add(post);
             _dataContext.SaveChanges();
 
             return new OkResult();
+        }
+
+        private void ValidateRequest(CreatePostDto createPostDto)
+        {
+            Validator.Validate(() => !string.IsNullOrWhiteSpace(createPostDto.Title), "Title is empty");
+            Validator.Validate(() => !string.IsNullOrWhiteSpace(createPostDto.Description), "Description is empty");
+
+            Validator.Validate(() => !string.IsNullOrWhiteSpace(createPostDto.MemberIndex), "MemberIndex is empty");
+            Validator.Validate(() => _dataContext.Member.FirstOrDefault(x => x.Index == createPostDto.MemberIndex) is not null, "Member not found");
+
+            Validator.Validate(() => createPostDto.Content is not null, "Content is empty");
+            Validator.Validate(() => createPostDto.ContentPhotos is not null, "Content photos are empty");
+            Validator.Validate(() => createPostDto.MainPhoto is not null, "Main photo is empty");
         }
     }
 }

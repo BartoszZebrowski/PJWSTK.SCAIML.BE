@@ -54,7 +54,7 @@ namespace PJWSTK.SCAIML.BE
             _dataContext.Post.Add(post);
             _dataContext.SaveChanges();
 
-            return new OkObjectResult(post);
+            return new OkObjectResult(post); // TODO change to OkResult()
         }
 
         private void ValidateRequest(CreatePostDto createPostDto)

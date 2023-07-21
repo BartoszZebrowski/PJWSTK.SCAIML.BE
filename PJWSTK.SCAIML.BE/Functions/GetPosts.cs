@@ -30,11 +30,10 @@ namespace PJWSTK.SCAIML.BE
             if (posts == null)
                 throw new ResourceNotFoundException("Any posts don't exist");
 
-            var resposne = posts.Select(post => new GetPostDto
+            var resposne = posts.Select(post => new GetPostsDto
             {
                 Id = post.Id,
                 Title = post.Title,
-                Content = post.Content,
                 Description = post.Description,
                 MainPhoto = post.MainPhoto,
                 MemberIndex = post.Member.Index,

@@ -36,7 +36,7 @@ namespace PJWSTK.SCAIML.BE.Utils
                 imgNode.SetAttributeValue("src", "data:image/png;base64," + photoBase64);
             }
 
-            return document.DocumentNode.OuterHtml;
+            return document.DocumentNode.SelectSingleNode("//body").InnerHtml;
         }
 
         public static async Task<string> ChangeIFormFileToBase64(IFormFile file)

@@ -1,0 +1,48 @@
+body{
+    background-color: #2e2e30;
+    color: white;
+    margin: 0px;
+    font-family: 'IBM Plex Mono', monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.post{
+    padding: 30px;
+    border-radius: 10px;
+    width: 950px;
+    background-color: #1f1f20;
+
+    margin-top: 50px;
+    margin-bottom: 50px;
+}
+
+.title{
+    font-size: 50px;
+    margin-bottom: 40px;
+}
+
+.photo{
+    margin-bottom: 40px;
+}
+
+.photoSignature{
+    color: #76767a;
+}
+
+img{
+    width: 100%;
+    height: auto;
+}
+
+h1{
+    margin-bottom: 10px;
+}
+
+p{
+    margin-bottom: 40px;
+}
+
+

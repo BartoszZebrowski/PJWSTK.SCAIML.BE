@@ -1,4 +1,6 @@
-﻿using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Cors.Internal;
+using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PJWSTK.SCAIML.BE.Data;
@@ -22,8 +24,6 @@ namespace PJWSTK.SCAIML.BE.Configuration
 
             builder.Services.AddDbContext<DataContext>(
               options => SqlServerDbContextOptionsExtensions.UseSqlServer(options, connectionString));
-
         }
-
     }
 }

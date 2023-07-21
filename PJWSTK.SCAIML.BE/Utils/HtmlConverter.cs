@@ -36,7 +36,7 @@ namespace PJWSTK.SCAIML.BE.Utils
                 imgNode.SetAttributeValue("src", "data:image/png;base64," + photoBase64);
             }
 
-            return document.ToString();
+            return document.DocumentNode.OuterHtml;
         }
 
         public static async Task<string> ChangeIFormFileToBase64(IFormFile file)
@@ -48,9 +48,8 @@ namespace PJWSTK.SCAIML.BE.Utils
 
         public static async Task<string> ChangeIFormFileToString(IFormFile file)
         {
-            using var memoryStream = new MemoryStream();
-            await file.CopyToAsync(memoryStream);
-            return memoryStream.ToString();
+            using var streamReader = new StreamReader(file.OpenReadStream());
+            return await streamReader.ReadToEndAsync();
         }
     }
 }

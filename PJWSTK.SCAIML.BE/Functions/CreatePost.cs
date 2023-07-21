@@ -13,6 +13,8 @@ using PJWSTK.SCAIML.BE.Data.Entities;
 using System.Linq;
 using PJWSTK.SCAIML.BE.Exceptions;
 using PJWSTK.SCAIML.BE.Utils;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace PJWSTK.SCAIML.BE
 {
@@ -25,8 +27,17 @@ namespace PJWSTK.SCAIML.BE
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req)
         {
-            var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var createPostDto = JsonConvert.DeserializeObject<CreatePostDto>(requestBody);
+            var photos = GetPhotos(req);
+
+            var createPostDto = new CreatePostDto()
+            {
+                MemberIndex = req.Form["MemberIndex"],
+                Title = req.Form["Title"],
+                Description = req.Form["Description"],
+                Content = req.Form.Files["Content"],
+                ContentPhotos = photos,
+                MainPhoto = req.Form.Files["MainPhoto"]
+            };
 
             ValidateRequest(createPostDto);
 
@@ -43,7 +54,7 @@ namespace PJWSTK.SCAIML.BE
             _dataContext.Post.Add(post);
             _dataContext.SaveChanges();
 
-            return new OkResult();
+            return new OkObjectResult(post);
         }
 
         private void ValidateRequest(CreatePostDto createPostDto)
@@ -57,6 +68,19 @@ namespace PJWSTK.SCAIML.BE
             Validator.Validate(() => createPostDto.Content is not null, "Content is empty");
             Validator.Validate(() => createPostDto.ContentPhotos is not null, "Content photos are empty");
             Validator.Validate(() => createPostDto.MainPhoto is not null, "Main photo is empty");
+        }
+
+        private List<IFormFile> GetPhotos(HttpRequest req)
+        {
+            var numberOfPhotos = req.Form.Files.Count - 2;
+            List<IFormFile> photos = new();
+
+            for (var i = 0; i < numberOfPhotos; i++)
+            {
+                photos.Add(req.Form.Files[$"ContentPhoto[{i}]"]);
+            }
+            
+            return photos;
         }
     }
 }

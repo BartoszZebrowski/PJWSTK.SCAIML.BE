@@ -25,7 +25,7 @@ namespace PJWSTK.SCAIML.BE
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
             ILogger log)
         {
-            var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            var requestBody = req.GetQueryParameterDictionary().First().Value;
             var postId = new Guid(requestBody);
 
             var post = _dataContext.Post.Include(x => x.Member).FirstOrDefault(x => x.Id == postId);

@@ -79,7 +79,7 @@ namespace PJWSTK.SCAIML.BE
             {
                 photos.Add(req.Form.Files[$"ContentPhoto[{i}]"]);
             }
-            
+
             return photos;
         }
     }
